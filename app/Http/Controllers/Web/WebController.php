@@ -12,6 +12,7 @@ use App\Models\ShippingAddress;
 use App\Models\ShippingMethod;
 use App\Models\ShippingType;
 use App\Models\Shop;
+use App\Models\DeliveryMan;
 use App\Models\Subscription;
 use App\Models\OrderDetail;
 use App\Models\Review;
@@ -50,6 +51,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use App\CPU\ImageManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -1548,6 +1550,85 @@ class WebController extends Controller
         return response()->json([
             'methodHtml'=> view(VIEW_FILE_NAMES['pay_offline_method_list_partials'],compact('method'))->render(),
         ]);
+    }
+
+
+    public function rider_registration()
+    {
+        $telephone_codes = TELEPHONE_CODES;
+        return view('web-views.rider.registration', compact('telephone_codes'));
+    }
+
+    public function store_rider(Request $request)
+    {
+        $request->validate([
+            'f_name' => 'required',
+            'l_name' => 'required',
+            'phone' => 'required',
+            'email' => 'required|unique:delivery_men,email',
+            'country_code' => 'required',
+            'password' => 'required|same:confirm_password|min:8'
+        ], [
+            'f_name.required' => 'First name is required!',
+            'l_name.required' => 'Last name is required!'
+        ]);
+
+
+
+        try {
+            $phone_combo_exists = DeliveryMan::where(['phone' => $request->phone, 'country_code' => $request->country_code])->exists();
+
+            if ($phone_combo_exists) {
+                Toastr::error(translate('This_phone_number_is_already_taken'));
+                return back();
+            }
+
+            $id_img_names = [];
+            if (!empty($request->file('identity_image'))) {
+                foreach ($request->identity_image as $img) {
+                    array_push($id_img_names, ImageManager::upload('delivery-man/', 'png', $img));
+                }
+                $identity_image = json_encode($id_img_names);
+            } else {
+                $identity_image = json_encode([]);
+            }
+
+            DB::beginTransaction();
+            $dm = new DeliveryMan();
+            $dm->seller_id = 0;
+            $dm->f_name = $request->f_name;
+            $dm->l_name = $request->l_name;
+            $dm->address = $request->address;
+            $dm->email = $request->email;
+            $dm->country_code = $request->country_code;
+            $dm->phone = $request->phone;
+            $dm->identity_number = $request->identity_number;
+            $dm->identity_type = $request->identity_type;
+            $dm->identity_image = $identity_image;
+            $dm->is_active = 0;
+            $dm->is_online = 0;
+            $dm->image = ImageManager::upload('delivery-man/', 'png', $request->file('image'));
+            $dm->password = bcrypt($request->password);
+
+            $dm->m_name = $request->m_name;
+            $dm->abn_number = $request->abn_number;
+            $dm->driver_licence_front = ImageManager::upload('delivery-man/', 'png', $request->file('driver_licence_front'));
+            $dm->driver_licence_back = ImageManager::upload('delivery-man/', 'png', $request->file('driver_licence_back'));
+            $dm->save();
+
+            $dm->og_pass = $request->password;
+
+            $company_email = BusinessSetting::where('type', 'company_email')->first()->value;
+            // $company_email = 'amit1kumar22245@gmail.com';
+            // Mail::to($company_email)->send(new \App\Mail\DeliverymanRegister($dm));
+            DB::commit();
+            Toastr::success(translate('Your request has been sent for review.'));
+            return redirect('rider/apply');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Toastr::error(translate($th->getMessage()));
+            return back();
+        }
     }
 
 }

@@ -390,6 +390,10 @@
                                 </li>
                             @endif
                         @endif
+                        <li class="nav-item dropdown {{request()->is('/')?'active':''}}">
+                            <a class="nav-link" href="{{route('rider-registration')}}">{{
+                                translate('become_a_rider') }}</a>
+                        </li>
                     </ul>
                     @if(auth('customer')->check())
                         <div class="logout-btn mt-auto d-md-none">

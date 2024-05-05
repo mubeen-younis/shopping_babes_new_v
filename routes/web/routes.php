@@ -95,6 +95,9 @@ Route::group(['namespace' => 'Web','middleware'=>['maintenance_mode','guestCheck
     Route::get('vendors', 'WebController@all_sellers')->name('vendors');
     Route::get('seller-profile/{id}', 'WebController@seller_profile')->name('seller-profile');
 
+    Route::get('rider/apply', 'WebController@rider_registration')->name('rider-registration');
+    Route::post('rider/store', 'WebController@store_rider')->name('rider-store');
+
     Route::get('flash-deals/{id}', 'WebController@flash_deals')->name('flash-deals');
 
     Route::controller(PageController::class)->group(function () {
