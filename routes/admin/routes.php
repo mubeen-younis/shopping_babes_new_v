@@ -64,6 +64,7 @@ use App\Http\Controllers\Admin\Order\RefundController;
 use App\Http\Controllers\Admin\ThirdParty\PaymentMethodController;
 use App\Http\Controllers\Admin\Notification\NotificationController;
 use App\Http\Controllers\Admin\Payment\OfflinePaymentMethodController;
+use App\Http\Controllers\Admin\ShopFinanceController;
 use App\Http\Controllers\Admin\POS\CartController;
 use App\Http\Controllers\Admin\POS\POSController;
 use App\Http\Controllers\Admin\POS\POSOrderController;
@@ -166,6 +167,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(Dashboard::ORDER_STATISTICS[URI], 'getOrderStatistics')->name('order-statistics');
         });
     });
+
+
+
+      // Custom Routes
+      Route::group(['prefix' => 'finance', 'as' => 'finance.'], function () {
+        Route::get('seller/{report_status?}', [ShopFinanceController::class, 'shop'])->name('seller-report');
+        Route::get('seller/update-report/{report_status}/{report_id}', [ShopFinanceController::class, 'updateReportStatus'])->name('seller-update-report');
+        Route::get('seller/print-report/{id}', [ShopFinanceController::class, 'printWeeklyReport'])->name('seller-print-report');
+
+        Route::get('rider/{report_status?}', [ShopFinanceController::class, 'rider'])->name('rider');
+        Route::get('rider/update-report/{report_status}/{report_id}', [ShopFinanceController::class, 'updateRiderReportStatus'])->name('rider-update-report');
+        Route::get('rider/print-report/{id}', [ShopFinanceController::class, 'printRiderWeeklyReport'])->name('rider-print-report');
+    });
+    // Custom Routes end
+
+
 
     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
     Route::group(['prefix' => 'pos', 'as' => 'pos.','middleware'=>['module:pos_management']], function () {

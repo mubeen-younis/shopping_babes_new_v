@@ -62,6 +62,35 @@
                                 </a>
                             </li>
                         @endif
+
+
+                                                <!-- Finance section -->
+                                                <li class="nav-item">
+                                                    <small class="nav-subtitle"
+                                                        title="{{ translate('messages.employee_handle') }}">Finance</small>
+                                                    <small class="tio-more-horizontal nav-subtitle-replacer"></small>
+                                                </li>
+                                                <li
+                                                    class="navbar-vertical-aside-has-menu {{ Request::is('admin/finance/seller*') ? 'active' : '' }}">
+                                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
+                                                        href="{{ route('admin.finance.seller-report') }}" title="Shop Finance">
+                                                        <i class="tio-shop nav-icon"></i>
+                                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">Seller
+                                                            Finance</span>
+                                                    </a>
+                                                </li>
+                                                <li
+                                                    class="navbar-vertical-aside-has-menu {{ Request::is('admin/finance/rider*') ? 'active' : '' }}">
+                                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
+                                                        href="{{ route('admin.finance.rider') }}" title="Rider Finance">
+                                                        <i class="tio-bike nav-icon"></i>
+                                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">Rider
+                                                            Finance</span>
+                                                    </a>
+                                                </li>
+                                                <!-- Finance section End -->
+
+
                         @if(Helpers::module_permission_check('order_management'))
                             <li class="nav-item {{Request::is('admin/orders*')?'scroll-here':''}}">
                                 <small class="nav-subtitle" title="">{{translate('order_management')}}</small>

@@ -7478,4 +7478,8 @@
   'Class  App\\Http\\Controllers\\Web\\ImageManager  not found' => 'Class  App\\Http\\Controllers\\Web\\ImageManager  not found',
   'Class  App\\CPU\\ImageManager  not found' => 'Class  App\\CPU\\ImageManager  not found',
   'Your request has been sent for review.' => 'Your request has been sent for review.',
+  'messages.employee_handle' => 'Messages.employee handle',
+  'Rider Finance' => 'Rider Finance',
+  'Not Paid' => 'Not Paid',
+  'Seller Finance' => 'Seller Finance',
 );
