@@ -106,11 +106,21 @@ class DeliveryManController extends Controller
     }
 
 
-    public function add(DeliveryManAddRequest $request, DeliveryManService $deliveryManService): JsonResponse|RedirectResponse
+    public function add(DeliveryManAddRequest $request, DeliveryManService $deliveryManService): RedirectResponse
     {
-        $dataArray = $deliveryManService->getDeliveryManAddData(request:$request, addedBy: 'admin');
+        $deliveryMan = $this->deliveryManRepo->getFirstWhere(params: ['phone' => $request['phone'], 'country_code' => $request['country_code']]);
+        if ($deliveryMan) {
+            Toastr::error(translate('this_phone_number_is_already_taken'));
+
+            return back();
+        }
+
+        $dataArray = $deliveryManService->getDeliveryManAddData(request: $request, addedBy: 'admin');
         $this->deliveryManRepo->add(data: $dataArray);
-        return response()->json(['message'=>translate('delivery_man_added_successfully')]);
+
+        Toastr::success(translate('Delivery_man_added_successfully'));
+
+        return redirect()->route('admin.delivery-man.list');
     }
 
 
@@ -123,10 +133,12 @@ class DeliveryManController extends Controller
             return response()->json(['errors'=>translate('this_phone_number_is_already_taken')]);
         }
         $dataArray = $deliveryManService->getDeliveryManUpdateData(
-            request:$request,
-            addedBy:'admin',
+            request: $request,
+            addedBy: 'admin',
             identityImages: $deliveryMan['identity_image'],
-            deliveryManImage: $deliveryMan['image']
+            deliveryManImage: $deliveryMan['image'],
+            driverLicenceFront: $deliveryMan['driver_licence_front'],
+            driverLicenceBack: $deliveryMan['driver_licence_back'],
         );
         $this->deliveryManRepo->update(id: $id, data: $dataArray);
         return response()->json(['message'=>translate('delivery_man_updated_successfully')]);

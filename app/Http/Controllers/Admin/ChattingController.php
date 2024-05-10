@@ -281,4 +281,92 @@ class ChattingController extends BaseController
         ]);
     }
 
+
+
+// ------------------------------------------------
+
+
+public function index1(?Request $request, ?string $type = null): \Illuminate\View\View
+{
+    return $this->getView();
+}
+
+public function getView(): View
+{
+    $lastChat = $this->chattingRepo->getFirstWhereNotNull(
+        params: ['admin_id' => 0],
+        filters: ['delivery_man_id', 'admin_id'],
+        orderBy: ['chattings.created_at' => 'DESC']
+    );
+
+    if (isset($lastChat)) {
+        $this->chattingRepo->updateAllWhere(
+            params: ['admin_id' => 0, 'delivery_man_id' => $lastChat['delivery_man_id']],
+            data: ['seen_by_admin' => 1]
+        );
+        $chattings = $this->getChatList1(id: $lastChat['delivery_man_id'], tableName: 'delivery_men');
+        $chattingUser = $this->getChatList1(tableName: 'delivery_men')->unique('delivery_man_id');
+
+        return view(Chatting::VIEW[VIEW], compact('chattings', 'chattingUser', 'lastChat'));
+    }
+
+    return view(Chatting::VIEW[VIEW], compact('lastChat'));
+}
+
+public function getMessages(Request $request): JsonResponse
+{
+    $this->chattingRepo->updateAllWhere(
+        params: ['admin_id' => 0, 'delivery_man_id' => $request['delivery_man_id']],
+        data: ['seen_by_admin' => 1]
+    );
+    $chatting = $this->getChatList1(id: $request['delivery_man_id'], tableName: 'delivery_men', orderBy: 'asc');
+    foreach ($chatting as $value) {
+        $imageNewData = [];
+        foreach (json_decode($value['attachment']) as $data) {
+            $imageNewData[] = getValidImage(path: 'storage/app/public/chatting/'.$data, type: 'backend-basic');
+        }
+        $value['attachment'] = json_encode($imageNewData);
+    }
+
+    return response()->json($chatting);
+}
+
+public function add(ChattingRequest $request, ChattingService $chattingService): JsonResponse
+{
+    $attachment = $chattingService->getAttachment(request: $request);
+    $dataArray = $chattingService->addChattingData(request: $request);
+    $this->chattingRepo->add(data: $dataArray);
+    $deliveryMan = $this->deliveryManRepo->getFirstWhere(params: ['id' => $request['delivery_man_id']]);
+    $messageForm = (object) [
+        'f_name' => 'admin',
+        'shop' => [
+            'name' => getWebConfig(name: 'company_name'),
+        ],
+    ];
+    ChattingEvent::dispatch('message_from_admin', 'delivery_man', $deliveryMan, $messageForm);
+    $imageArray = [];
+    foreach ($attachment as $singleImage) {
+        $imageArray[] = getValidImage(path: 'storage/app/public/chatting/'.$singleImage, type: 'backend-basic');
+    }
+
+    return response()->json(['status' => 1, 'message' => $request['message'], 'time' => now(), 'image' => $imageArray]);
+}
+
+protected function getChatList1(string|int|null $id = null, ?string $tableName = null, string $orderBy = 'desc'): Collection
+{
+    $columnName = $tableName == 'admins' ? 'admin_id' : 'delivery_man_id';
+    $filters = $id ? ['chattings.admin_id' => 0, $columnName => $id] : ['chattings.admin_id' => 0];
+
+    return $this->chattingRepo->getListBySelectWhere(
+        joinColumn: [$tableName, $tableName.'.id', '=', 'chattings.'.$columnName],
+        select: ['chattings.*', $tableName.'.f_name', $tableName.'.l_name', $tableName.'.image'],
+        filters: $filters,
+        orderBy: ['chattings.created_at' => $orderBy],
+    );
+}
+
+
+
+
+
 }

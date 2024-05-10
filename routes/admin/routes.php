@@ -654,6 +654,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(DeliveryMan::ORDER_HISTORY[URI].'/{order}', 'getOrderStatusHistory')->name('ajax-order-status-history');
         });
 
+
+        Route::controller(ChattingController::class)->group(function () {
+            Route::get(Chatting::VIEW[URI], 'index1')->name('chat');
+            Route::get(Chatting::MESSAGE1[URI], 'getMessages')->name('ajax-message-by-delivery-man');
+            Route::post(Chatting::ADD[URI], 'add')->name('ajax-admin-message-store');
+        });
+
+
+
         Route::controller(DeliveryManCashCollectController::class)->group(function (){
             Route::get(DeliveryManCash::LIST[URI].'/{id}', 'index')->name('collect-cash');
             Route::post(DeliveryManCash::ADD[URI].'/{id}', 'getCashReceive')->name('cash-receive');

@@ -92,9 +92,90 @@
                                         </div>
                                     </div>
                                 </div>
+
+
+                                {{-- ----------- --}}
+
+                                 <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="title-color">{{translate('Driver Licence')}}</label>
+                                    <span class="text-info">* ( {{translate('Front')}} )</span>
+                                    <div class="custom-file">
+                                        <input value="{{ old('driver_licence_front') }}" type="file"
+                                            name="driver_licence_front" id="customFileEg2" class="custom-file-input"
+                                            accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
+                                        <label class="custom-file-label"
+                                            for="customFileEg2">{{translate('choose_File')}}</label>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <img class="upload-img-view" id="viewer2"
+                                            src="{{asset('public\assets\back-end\img\400x400\img2.jpg')}}"
+                                            alt="delivery-man image" />
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="title-color">{{translate('Driver Licence')}}</label>
+                                    <span class="text-info">* ( {{translate('Back')}} )</span>
+                                    <div class="custom-file">
+                                        <input value="{{ old('driver_licence_back') }}" type="file"
+                                            name="driver_licence_back" id="customFileEg3" class="custom-file-input"
+                                            accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
+                                        <label class="custom-file-label"
+                                            for="customFileEg3">{{translate('choose_File')}}</label>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <img class="upload-img-view" id="viewer3"
+                                            src="{{asset('public\assets\back-end\img\400x400\img2.jpg')}}"
+                                            alt="delivery-man image" />
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                                {{-- ----------- --}}
+
+
+
                             </div>
                         </div>
                     </div>
+
+
+
+
+
+                    <div class="card mt-3">
+                        <!-- End Page Header -->
+                        <div class="card-body">
+                            <h5 class="mb-0 page-header-title d-flex align-items-center gap-2 border-bottom pb-3 mb-3">
+                                <i class="tio-briefcase"></i>
+                                {{translate('delivery_available_zip_code_area')}}
+                            </h5>
+
+                            <div class="form-group">
+                                <label class="title-color d-flex">{{translate('zip_code')}}</label>
+                                <input type="text" class="form-control" name="zipcode"
+                                    placeholder="{{ translate('enter_zip_code') }}" data-role="tagsinput" required>
+                                <span
+                                    class="pl-2 text-info">({{translate('multiple_zip_codes_can_be_inputted_by_comma_separating')}})</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+
+
+
                     <div class="card mt-3">
                         <div class="card-body">
                             <h5 class="mb-0 page-header-title d-flex align-items-center gap-2 border-bottom pb-3 mb-3">

@@ -29,6 +29,8 @@ class DeliveryManService
             'phone' => $request['phone'],
             'identity_number' => $request['identity_number'],
             'identity_type' => $request['identity_type'],
+            'delivery_zip_codes' => $request['zipcode'],
+            'abn_number' => $request['abn_number'],
             'password' => bcrypt($request['password']),
             'created_at' => now(),
             'updated_at' => now(),
@@ -56,6 +58,8 @@ class DeliveryManService
         $imageArray = [
             'identity_image' => $identityImage,
             'image' => $this->upload(dir: 'delivery-man/', format: 'webp', image: $request->file('image')),
+            'driver_licence_front' => $this->upload(dir: 'delivery-man/', format: 'webp', image: $request->file('driver_licence_front')),
+            'driver_licence_back' => $this->upload(dir: 'delivery-man/', format: 'webp', image: $request->file('driver_licence_back')),
         ];
        return array_merge($commonArray,$imageArray);
     }
@@ -68,7 +72,7 @@ class DeliveryManService
      * @return array
      * This array return column name and there value when update delivery man
      */
-    public function getDeliveryManUpdateData(object $request,string $addedBy,string $identityImages,string $deliveryManImage): array
+    public function getDeliveryManUpdateData(object $request,string $addedBy,string $identityImages,string $deliveryManImage, string $driverLicenceFront, string $driverLicenceBack): array
     {
         if (!empty($request->file('identity_image'))) {
             foreach (json_decode($identityImages, true) as $image) {
@@ -87,10 +91,25 @@ class DeliveryManService
         }else{
             $image = $deliveryManImage;
         }
+
+        if ($request->has('driver_licence_front')) {
+            $licenceFront = $this->update(dir: 'delivery-man/', oldImage: $driverLicenceFront, format: 'webp', image: $request->file('driver_licence_front'));
+        } else {
+            $licenceFront = $driverLicenceFront;
+        }
+
+        if ($request->has('driver_licence_back')) {
+            $licenceBack = $this->update(dir: 'delivery-man/', oldImage: $driverLicenceBack, format: 'webp', image: $request->file('driver_licence_back'));
+        } else {
+            $licenceBack = $driverLicenceBack;
+        }
+
         $commonArray = $this->getCommonDeliveryManData(request: $request, addedBy: $addedBy);
         $imageArray = [
             'identity_image' => $identityImage,
             'image' => $image,
+            'driver_licence_front' => $licenceFront,
+            'driver_licence_back' => $licenceBack,
         ];
         return array_merge($commonArray, $imageArray);
     }
