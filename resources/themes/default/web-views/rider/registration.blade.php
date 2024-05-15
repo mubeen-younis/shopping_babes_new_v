@@ -35,7 +35,7 @@
                                                 class="form-control" placeholder="{{translate('first_name')}}" required>
                                         </div>
                                     </div>
-                                    {{-- <div class="col-md-4">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="title-color d-flex"
                                                 for="exampleFormControlInput1">{{translate('Middle')}}
@@ -44,7 +44,7 @@
                                                 class="form-control"
                                                 placeholder="{{translate('Middle')}} {{translate('name')}}">
                                         </div>
-                                    </div> --}}
+                                    </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label class="title-color d-flex"
@@ -288,7 +288,7 @@
                 groupClassName: 'col-6 col-lg-4',
                 maxFileSize: '',
                 placeholderImage: {
-                    image: '{{asset('public/assets/back-end/img/400x400/img2.jpg')}}',
+                    image: '{{asset('public/assets/back-end/img/400x400/3.jpg')}}',
                     width: '100%'
                 },
                 dropFileLabel: "Drop Here",
