@@ -27,6 +27,7 @@ if(!function_exists('digital_payment_success')) {
                         'address_id' => $additional_data->address_id ?? null,
                         'billing_address_id' => $additional_data->billing_address_id ?? null,
                         'payment_request_from' => $additional_data->payment_request_from,
+                        'shipping_method_id' => $additional_data->shipping_method_id,
                     ],
                 ];
 

@@ -505,7 +505,7 @@ class OrderManager
         if (isset($shipping_method)) {
             $shipping_method_id = $shipping_method->shipping_method_id;
         } else {
-            $shipping_method_id = 0;
+            $shipping_method_id = isset($req['shipping_method_id']) && $req['shipping_method_id'] ? $req['shipping_method_id'] : 0;
         }
 
         $shipping_model = Helpers::get_business_settings('shipping_method');

@@ -11,43 +11,70 @@ function updateCartQuantityListMobile(minimum_order_qty, key, incr, e) {
 }
 
 function updateCartCommon(minimum_order_qty, key, incr, e, quantity_id) {
-
+    let cart_group_id = $(".action-set-shipping-id").data("product-id");
+    let id = $(".action-set-shipping-id").val();
     let quantity = parseInt($("#" + quantity_id + key).val()) + parseInt(incr);
     let exQuantity = $("#" + quantity_id + key);
-
-    if (exQuantity.val() > exQuantity.data('current-stock') && e == 'minus') {
-        removeProductFromCartList(key)
-        return false;
-    }
-
-    if (minimum_order_qty > quantity && e != 'delete') {
-        toastr.error($('#message-minimum-order-quantity-cannot-less-than').data('text') + minimum_order_qty);
+    if (minimum_order_qty > quantity && e != "delete") {
+        toastr.error(
+            $("#message-minimum-order-quantity-cannot-less-than").data("text") +
+                minimum_order_qty
+        );
         $(".cartQuantity" + key).val(minimum_order_qty);
         return false;
     }
-    if (exQuantity.val() == exQuantity.data('min') && e == 'delete') {
-        removeProductFromCartList(key)
-    } else {
-        $.post($('#route-cart-updateQuantity').data('url'), {
-            _token: $('meta[name="_token"]').attr('content'),
-            key,
-            quantity
-        }, function (response) {
-            if (response.status == 0) {
-                toastr.error(response.message, {
-                    CloseButton: true,
-                    ProgressBar: true
-                });
-                $(".cartQuantity" + key).val(response['qty']);
-            } else {
+    if (exQuantity.val() == exQuantity.data("min") && e == "delete") {
+        $.post(
+            $("#route-cart-remove").data("url"),
+            {
+                _token: $('meta[name="_token"]').attr("content"),
+                key: key,
+            },
+            function (response) {
                 updateNavCart();
-                $('#cart-summary').empty().html(response);
-                $('[data-toggle="tooltip"]').tooltip()
-                actionCheckoutFunctionInit()
-                couponCode()
-                setShippingIdFunctionCartDetails()
+                toastr.info(
+                    $("#message-item-has-been-removed-from-cart").data("text"),
+                    {
+                        CloseButton: true,
+                        ProgressBar: true,
+                    }
+                );
+                let segmentArray = window.location.pathname.split("/");
+                let segment = segmentArray[segmentArray.length - 1];
+                if (
+                    segment === "checkout-payment" ||
+                    segment === "checkout-details"
+                ) {
+                    location.reload();
+                }
+                $("#cart-summary").empty().html(response.data);
+                actionCheckoutFunctionInit();
             }
-        });
+        );
+    } else {
+        $.post(
+            $("#route-cart-updateQuantity").data("url"),
+            {
+                _token: $('meta[name="_token"]').attr("content"),
+                key,
+                quantity,
+                id,
+                cart_group_id,
+            },
+            function (response) {
+                if (response.status == 0) {
+                    toastr.error(response.message, {
+                        CloseButton: true,
+                        ProgressBar: true,
+                    });
+                    $(".cartQuantity" + key).val(response["qty"]);
+                } else {
+                    updateNavCart();
+                    $("#cart-summary").empty().html(response);
+                    actionCheckoutFunctionInit();
+                }
+            }
+        );
     }
 }
 

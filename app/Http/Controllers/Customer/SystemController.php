@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Utils\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\ShippingAddress;
 use App\Models\ShippingMethod;
 use App\Models\CartShipping;
@@ -44,16 +45,39 @@ class SystemController extends Controller
         ]);
     }
 
-    public static function insert_into_cart_shipping($request)
+    public static function insert_into_cart_shipping($request, $group_id = null)
     {
-        $shipping = CartShipping::where(['cart_group_id' => $request['cart_group_id']])->first();
+        $cart_group_id = isset($group_id) && $group_id ? $group_id : $request['cart_group_id'];
+        $shipping = CartShipping::where(['cart_group_id' => $cart_group_id])->first();
         if (isset($shipping) == false) {
             $shipping = new CartShipping();
         }
-        $shipping['cart_group_id'] = $request['cart_group_id'];
+
         $shipping['shipping_method_id'] = $request['id'];
-        $shipping['shipping_cost'] = ShippingMethod::find($request['id'])->cost;
+        $shipping_cost = ShippingMethod::find($request['id'])->cost;
+
+        $carts = array_sum(Cart::where('cart_group_id', $cart_group_id)->pluck('quantity')->toArray());
+        $shipping['cart_group_id'] = $cart_group_id;
+        $total_cost = 0;
+        $vals = [];
+
+        for ($i = 1; $i <= $carts; $i++) {
+            if ($i == 1) {
+                $vals[] = $shipping_cost;
+                $total_cost += $shipping_cost;
+            } else {
+                $vals[] = $shipping_cost / 2;
+                $total_cost += ($shipping_cost) / 2;
+            }
+        }
+
+        $shipping['shipping_cost'] = $total_cost;
         $shipping->save();
+        return $total_cost;
+        // $shipping['cart_group_id'] = $request['cart_group_id'];
+        // $shipping['shipping_method_id'] = $request['id'];
+        // $shipping['shipping_cost'] = ShippingMethod::find($request['id'])->cost;
+        // $shipping->save();
     }
 
     /*

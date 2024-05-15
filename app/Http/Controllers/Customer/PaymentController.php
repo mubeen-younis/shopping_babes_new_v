@@ -52,6 +52,7 @@ class PaymentController extends Controller
         }
 
         $cart_group_ids = CartManager::get_cart_group_ids();
+        dd(auth()->user());
         $carts = Cart::whereIn('cart_group_id', $cart_group_ids)->get();
         $productStockCheck = CartManager::product_stock_check($carts);
         if(!$productStockCheck && in_array($request->payment_request_from, ['app'])){
@@ -156,6 +157,8 @@ class PaymentController extends Controller
             $additional_data['coupon_code'] = $request['coupon_code'];
             $additional_data['coupon_discount'] = $request['coupon_discount'];
             $additional_data['payment_request_from'] = $request->payment_request_from;
+            $additional_data['shipping_method_id'] = $request->shipping_method_id;
+            $additional_data['shipping_cost'] = isset($request->shipping_cost) && $request->shipping_cost ? $request->shipping_cost : null;
         }
 
         $currency_model = Helpers::get_business_settings('currency_model');
@@ -174,7 +177,7 @@ class PaymentController extends Controller
                 $cart_amount += CartManager::api_cart_grand_total($request, $group_id);
                 $shipping_cost_saved += CartManager::get_shipping_cost_saved_for_free_delivery($group_id);
             }
-            $payment_amount = $cart_amount - $request['coupon_discount'] - $shipping_cost_saved;
+            $payment_amount = $cart_amount - $request['coupon_discount'] - $shipping_cost_saved + $request->shipping_cost;
         }else{
             $discount = session()->has('coupon_discount') ? session('coupon_discount') : 0;
             $order_wise_shipping_discount = CartManager::order_wise_shipping_discount();

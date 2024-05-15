@@ -328,6 +328,18 @@ class WebController extends Controller
             return redirect('/');
         }
 
+
+
+        $cart_group_ids = CartManager::get_cart_group_ids();
+        $shippingMethod = Helpers::get_business_settings('shipping_method');
+        $shippingMethodId = 0;
+        if (isset($cart_group_ids) && $cart_group_ids) {
+            $shippingMethodIdArr = CartShipping::whereIn('cart_group_id', $cart_group_ids)->pluck('shipping_method_id')->toArray();
+            $shippingMethodId = isset($shippingMethodIdArr) && $shippingMethodIdArr ? $shippingMethodIdArr[0] : 0;
+        }
+
+
+
         $response = self::checkValidationForCheckoutPages($request);
         if ($response['status'] == 0) {
             foreach ($response['message'] as $message) {
@@ -367,7 +379,8 @@ class WebController extends Controller
             'billing_input_by_customer' => $billingInputByCustomer,
             'default_location' => $defaultLocation,
             'shipping_addresses' => $shippingAddresses,
-            'billing_addresses' => $shippingAddresses
+            'billing_addresses' => $shippingAddresses,
+            'shippingMethodId' => $shippingMethodId
         ]);
     }
 
@@ -600,39 +613,42 @@ class WebController extends Controller
             || (getWebConfig(name: 'guest_checkout') && session()->has('guest_id') && session('guest_id'))
         ) {
             $topRatedShops = [];
-            $newSellers = [] ;
+            $newSellers = [];
             $currentDate = date('Y-m-d H:i:s');
-            if(theme_root_path()==="theme_fashion"){
+            if (theme_root_path() === 'theme_fashion') {
 
-                $sellerList = $this->seller->approved()->with(['shop','product.reviews'])
+                $sellerList = $this->seller->approved()->with(['shop', 'product.reviews'])
                     ->withCount(['product' => function ($query) {
                         $query->active();
                     }])->get();
-                    $sellerList?->map(function ($seller) {
-                        $rating = 0;
-                        $count = 0;
-                        foreach ($seller->product as $item) {
-                            foreach ($item->reviews as $review) {
-                                $rating += $review->rating;
-                                $count++;
-                            }
+                $sellerList?->map(function ($seller) {
+                    $rating = 0;
+                    $count = 0;
+                    foreach ($seller->product as $item) {
+                        foreach ($item->reviews as $review) {
+                            $rating += $review->rating;
+                            $count++;
                         }
-                        $averageRating = $rating / ($count == 0 ? 1 : $count);
-                        $ratingCount = $count;
-                        $seller['average_rating'] = $averageRating;
-                        $seller['rating_count'] = $ratingCount;
+                    }
+                    $averageRating = $rating / ($count == 0 ? 1 : $count);
+                    $ratingCount = $count;
+                    $seller['average_rating'] = $averageRating;
+                    $seller['rating_count'] = $ratingCount;
 
-                        $productCount = $seller->product->count();
-                        $randomProduct = Arr::random($seller->product->toArray(), $productCount < 3 ? $productCount : 3);
-                        $seller['product'] = $randomProduct;
-                        return $seller;
-                    });
-                $newSellers     =  $sellerList->sortByDesc('id')->take(12);
-                $topRatedShops =  $sellerList->where('rating_count', '!=', 0)->sortByDesc('average_rating')->take(12);
+                    $productCount = $seller->product->count();
+                    $randomProduct = Arr::random($seller->product->toArray(), $productCount < 3 ? $productCount : 3);
+                    $seller['product'] = $randomProduct;
+
+                    return $seller;
+                });
+                $newSellers = $sellerList->sortByDesc('id')->take(12);
+                $topRatedShops = $sellerList->where('rating_count', '!=', 0)->sortByDesc('average_rating')->take(12);
             }
+
             return view(VIEW_FILE_NAMES['cart_list'], compact('topRatedShops', 'newSellers', 'currentDate', 'request'));
         }
         Toastr::info(translate('invalid_access'));
+
         return redirect('/');
     }
 

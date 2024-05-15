@@ -122,19 +122,27 @@
                                                         </div>
                                                         <div class="col-6">
                                                             <div class="form-group">
+                                                                @if($zip_restrict_status == 1 && $shippingMethodId == 13)
+                                                                <label>{{ translate('available_rider_zip_code')}}
+                                                                    <span class="text-danger">*</span></label>
+                                                                @else
                                                                 <label>{{ translate('zip_code')}}
                                                                     <span class="text-danger">*</span></label>
-                                                                @if($zip_restrict_status == 1)
-                                                                    <select name="zip" class="form-control selectpicker" data-live-search="true" id="select2-zip-container" required>
-                                                                        @forelse($zip_codes as $code)
-                                                                        <option value="{{ $code->zipcode }}">{{ $code->zipcode }}</option>
-                                                                        @empty
-                                                                            <option value="">{{ translate('no_zip_to_deliver') }}</option>
-                                                                        @endforelse
-                                                                    </select>
+                                                                @endif
+                                                                @if($zip_restrict_status == 1 && $shippingMethodId == 13)
+                                                                <select name="zip" class="form-control selectpicker"
+                                                                    data-live-search="true" id="select2-zip-container" required>
+                                                                    @forelse($zip_codes as $code)
+                                                                    <option value="{{ $code->zipcode }}">{{ $code->zipcode }}
+                                                                    </option>
+                                                                    @empty
+                                                                    <option value="">{{ translate('no_zip_to_deliver') }}
+                                                                    </option>
+                                                                    @endforelse
+                                                                </select>
                                                                 @else
-                                                                <input type="text" class="form-control"
-                                                                       name="zip" id="zip" {{$shippingAddresses->count()==0?'required':''}}>
+                                                                <input type="text" class="form-control" name="zip" id="zip"
+                                                                    {{$shippingAddresses->count()==0?'required':''}}>
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -305,17 +313,26 @@
                                                         </div>
                                                         <div class="col-6">
                                                             <div class="form-group">
+                                                                @if($zip_restrict_status == 1 && $shippingMethodId == 13)
+                                                                <label>{{ translate('available_rider_zip_code')}}
+                                                                    <span class="text-danger">*</span></label>
+                                                                @else
                                                                 <label>{{ translate('zip_code')}}
                                                                     <span class="text-danger">*</span></label>
-                                                                @if($zip_restrict_status)
-                                                                    <select name="billing_zip" id="" class="form-control selectpicker" data-live-search="true" id="select_billing_zip">
-                                                                        @foreach($zip_codes as $code)
-                                                                            <option value="{{ $code->zipcode }}">{{ $code->zipcode }}</option>
-                                                                        @endforeach
-                                                                    </select>
+                                                                @endif
+                                                                @if($zip_restrict_status && $shippingMethodId == 13)
+                                                                <select name="billing_zip" id=""
+                                                                    class="form-control selectpicker"
+                                                                    data-live-search="true" id="select_billing_zip">
+                                                                    @foreach($zip_codes as $code)
+                                                                    <option value="{{ $code->zipcode }}">{{ $code->zipcode
+                                                                        }}</option>
+                                                                    @endforeach
+                                                                </select>
                                                                 @else
-                                                                    <input type="text" class="form-control" id="billing_zip"
-                                                                           name="billing_zip" {{$billingAddresses->count()==0?'required':''}}>
+                                                                <input type="text" class="form-control" id="billing_zip"
+                                                                    name="billing_zip"
+                                                                    {{$billingAddresses->count()==0?'required':''}}>
                                                                 @endif
                                                             </div>
                                                         </div>

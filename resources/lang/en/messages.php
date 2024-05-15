@@ -7495,4 +7495,7 @@
   'The_image_field_is_required' => 'The image field is required',
   'The_password_and_confirm_password_must_match' => 'The password and confirm password must match',
   '_contact_info' => ' contact info',
+  'too_many_attempts' => 'Too many attempts',
+  'please_try_again_after' => 'Please try again after',
+  'available_rider_zip_code' => 'Available rider zip code',
 );

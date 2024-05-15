@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Http\Controllers\Customer\SystemController;
 use App\Utils\Helpers;
 use App\Models\Cart;
 use App\Models\CartShipping;
@@ -69,13 +70,11 @@ class CartManager
     public static function get_cart_group_ids($request = null)
     {
         $user = Helpers::get_customer($request);
-
-        if ($user == 'offline') {
-            $cart_ids = Cart::where(['customer_id' => session('guest_id') ?? ($request->guest_id ?? 0), 'is_guest'=>1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
-        } else {
-            $cart_ids = Cart::where(['customer_id' => $user->id, 'is_guest'=>'0'])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
-        }
-
+        // if ($user == 'offline') {
+        //     $cart_ids = Cart::where(['customer_id' => session('guest_id') ?? ($request->guest_id ?? 0), 'is_guest'=>1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
+        // } else {
+            $cart_ids = Cart::where(['customer_id' => 2, 'is_guest'=>'0'])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
+        // }
         return $cart_ids;
     }
 
@@ -414,8 +413,7 @@ class CartManager
         $guest_id = session('guest_id') ?? ($request->guest_id ?? 0);
         $status = 1;
         $qty = 0;
-        $cart = Cart::where(['id' => $request->key, 'customer_id' => ($user=='offline' ? $guest_id : $user->id)])->first();
-
+        $cart = Cart::where(['id' => $request->key, 'customer_id' => ($user == 'offline' ? $guest_id : $user->id)])->first();
         $product = Product::find($cart['product_id']);
         $count = count(json_decode($product->variation));
         if ($count) {
@@ -427,7 +425,7 @@ class CartManager
                     }
                 }
             }
-        } else if (($product['product_type'] == 'physical') && $product['current_stock'] < $request->quantity) {
+        } elseif (($product['product_type'] == 'physical') && $product['current_stock'] < $request->quantity) {
             $status = 0;
             $qty = $cart['quantity'];
         }
@@ -435,15 +433,16 @@ class CartManager
         if ($status) {
             $qty = $request->quantity;
             $cart['quantity'] = $request->quantity;
-            $cart['shipping_cost'] =  $product->product_type == 'physical' ? CartManager::get_shipping_cost_for_product_category_wise($product,$request->quantity):0;
+            $cart['shipping_cost'] = $product->product_type == 'physical' ? CartManager::get_shipping_cost_for_product_category_wise($product, $request->quantity) : 0;
         }
-
         $cart->save();
-
+        if ($request->has('id') && is_numeric($request->input('id'))) {
+            $cart['shipping_cost'] = $product->product_type == 'physical' ? SystemController::insert_into_cart_shipping($request, $cart->cart_group_id) : 0;
+        }
         return [
             'status' => $status,
             'qty' => $qty,
-            'message' => $status == 1 ? translate('successfully_updated!') : translate('sorry_stock_is_limited')
+            'message' => $status == 1 ? translate('successfully_updated!') : translate('sorry_stock_is_limited'),
         ];
     }
 
