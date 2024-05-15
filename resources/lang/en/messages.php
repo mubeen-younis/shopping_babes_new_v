@@ -7498,4 +7498,5 @@
   'too_many_attempts' => 'Too many attempts',
   'please_try_again_after' => 'Please try again after',
   'available_rider_zip_code' => 'Available rider zip code',
+  'too_many_attempts._please_try_again_after_' => 'Too many attempts. please try again after ',
 );
