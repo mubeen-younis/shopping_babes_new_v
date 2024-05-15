@@ -7499,4 +7499,10 @@
   'please_try_again_after' => 'Please try again after',
   'available_rider_zip_code' => 'Available rider zip code',
   'too_many_attempts._please_try_again_after_' => 'Too many attempts. please try again after ',
+  'SQLSTATE[42S22]: Column not found: 1054 Unknown column  m_name  in  field list  (Connection: mysql  SQL: insert into `delivery_men` (`seller_id`  `f_name`  `l_name`  `address`  `email`  `country_code`  `phone`  `identity_number`  `identity_type`  `identity_image`  `is_active`  `is_online`  `image`  `password`  `m_name`  `abn_number`  `driver_licence_front`  `driver_licence_back`  `updated_at`  `created_at`) values (0  my full name  my full name  full street address  abc@gmail.com  44  (123) 456-7890  er-98-tr  passport  [ 2024-05-16-664534373bf93.png ]  0  0  2024-05-16-664534375dfc9.png  $2y$10$reExi.0.Zqa9VoKRUurK8eSDRMcx2uBGn9DYKJzV2N/tY0PTpHl2W  my full name  ex-45-gf  2024-05-16-664534378c9d7.png  2024-05-16-66453437a90d1.png  2024-05-16 08:16:23  2024-05-16 08:16:23))' => 'SQLSTATE[42S22]: Column not found: 1054 Unknown column  m name  in  field list  (Connection: mysql  SQL: insert into `delivery men` (`seller id`  `f name`  `l name`  `address`  `email`  `country code`  `phone`  `identity number`  `identity type`  `identity image`  `is active`  `is online`  `image`  `password`  `m name`  `abn number`  `driver licence front`  `driver licence back`  `updated at`  `created at`) values (0  my full name  my full name  full street address  abc@gmail.com  44  (123) 456-7890  er-98-tr  passport  [ 2024-05-16-664534373bf93.png ]  0  0  2024-05-16-664534375dfc9.png  $2y$10$reExi.0.Zqa9VoKRUurK8eSDRMcx2uBGn9DYKJzV2N/tY0PTpHl2W  my full name  ex-45-gf  2024-05-16-664534378c9d7.png  2024-05-16-66453437a90d1.png  2024-05-16 08:16:23  2024-05-16 08:16:23))',
+  'Mark as Not Paid' => 'Mark as Not Paid',
+  'messages.view' => 'Messages.view',
+  'Mark as Paid' => 'Mark as Paid',
+  'We_are_sorry_server_is_not_responding' => 'We are sorry server is not responding',
+  'Try_after_sometime' => 'Try after sometime',
 );
