@@ -288,7 +288,7 @@
                 groupClassName: 'col-6 col-lg-4',
                 maxFileSize: '',
                 placeholderImage: {
-                    image: '{{asset('public/assets/back-end/img/400x400/img2.jpg')}}',
+                    image: '{{asset('public/assets/back-end/img/400x400/3.jpg')}}',
                     width: '100%'
                 },
                 dropFileLabel: "Drop Here",
