@@ -7598,5 +7598,12 @@
   'please_ensure_that_you_have_correctly_configured_the_SMTP_settings_to_avoid_potential_issues_with_email_delivery' => 'Please ensure that you have correctly configured the SMTP settings to avoid potential issues with email delivery',
   'want_to_Turn_ON_the_sendgrid_mail_config_option' => 'Want to Turn ON the sendgrid mail config option',
   'please_ensure_that_you_have_correctly_configured_the_sendgrid_settings_to_avoid_potential_issues_with_email_delivery' => 'Please ensure that you have correctly configured the sendgrid settings to avoid potential issues with email delivery',
+
+  'your_order_is_being_processed_and_will_be_completed.' => 'Your order is being processed and will be completed.',
+  'You_will_receive_an_email_confirmation_when_your_order_is_placed.' => 'You will receive an email confirmation when your order is placed.',
   'Delivery_unavailable_in_this_zip_code_area' => 'Delivery unavailable in this zip code area',
+  'use_your_registered_email_address' => 'Use your registered email address',
+  'we_will_send_you_a_temporary_password_recovery_link_in_your_email' => 'We will send you a temporary password recovery link in your email',
+  'Click_the_recovery_link_to_change_your_password_on_our_secure_website' => 'Click the recovery link to change your password on our secure website',
+  'Rider' => 'Rider',
 );
