@@ -7539,7 +7539,6 @@
   'if_both_features_are_disabled _then_all_places_will_be_available_as_delivery_area' => 'If both features are disabled  then all places will be available as delivery area',
   'If_only_the ‘Delivery_Available_Country’ feature_is_enabled _and_you_add_your_preferred_country _then_you’ll_be_able_to_deliver_all_over_the_country' => 'If only the ‘Delivery Available Country’ feature is enabled  and you add your preferred country  then you’ll be able to deliver all over the country',
   'the_country_code_field_is_required' => 'The country code field is required',
-
   'SQLSTATE[42S22]: Column not found: 1054 Unknown column  m_name  in  field list  (Connection: mysql  SQL: insert into `delivery_men` (`seller_id`  `f_name`  `l_name`  `address`  `email`  `country_code`  `phone`  `identity_number`  `identity_type`  `identity_image`  `is_active`  `is_online`  `image`  `password`  `m_name`  `abn_number`  `driver_licence_front`  `driver_licence_back`  `updated_at`  `created_at`) values (0  William  Jones  787  rider3@gmail.com  61  6565656565  7455252900  passport  [ 2024-05-16-66456b0941242.png ]  0  0  2024-05-16-66456b095cac5.png  $2y$10$E1npm.PZ.314R22GgZ6TYOWRJA1G6rvtBipP5ZJtQkasJ1lMXrob6  s  1234567855  2024-05-16-66456b0989359.png  2024-05-16-66456b09a4fb2.png  2024-05-16 12:10:17  2024-05-16 12:10:17))' => 'SQLSTATE[42S22]: Column not found: 1054 Unknown column  m name  in  field list  (Connection: mysql  SQL: insert into `delivery men` (`seller id`  `f name`  `l name`  `address`  `email`  `country code`  `phone`  `identity number`  `identity type`  `identity image`  `is active`  `is online`  `image`  `password`  `m name`  `abn number`  `driver licence front`  `driver licence back`  `updated at`  `created at`) values (0  William  Jones  787  rider3@gmail.com  61  6565656565  7455252900  passport  [ 2024-05-16-66456b0941242.png ]  0  0  2024-05-16-66456b095cac5.png  $2y$10$E1npm.PZ.314R22GgZ6TYOWRJA1G6rvtBipP5ZJtQkasJ1lMXrob6  s  1234567855  2024-05-16-66456b0989359.png  2024-05-16-66456b09a4fb2.png  2024-05-16 12:10:17  2024-05-16 12:10:17))',
   'generate_Sitemap' => 'Generate Sitemap',
   'notification message...' => 'Notification message...',
@@ -7599,4 +7598,11 @@
   'please_ensure_that_you_have_correctly_configured_the_SMTP_settings_to_avoid_potential_issues_with_email_delivery' => 'Please ensure that you have correctly configured the SMTP settings to avoid potential issues with email delivery',
   'want_to_Turn_ON_the_sendgrid_mail_config_option' => 'Want to Turn ON the sendgrid mail config option',
   'please_ensure_that_you_have_correctly_configured_the_sendgrid_settings_to_avoid_potential_issues_with_email_delivery' => 'Please ensure that you have correctly configured the sendgrid settings to avoid potential issues with email delivery',
+  'your_order_is_being_processed_and_will_be_completed.' => 'Your order is being processed and will be completed.',
+  'You_will_receive_an_email_confirmation_when_your_order_is_placed.' => 'You will receive an email confirmation when your order is placed.',
+  'Delivery_unavailable_in_this_zip_code_area' => 'Delivery unavailable in this zip code area',
+  'use_your_registered_email_address' => 'Use your registered email address',
+  'we_will_send_you_a_temporary_password_recovery_link_in_your_email' => 'We will send you a temporary password recovery link in your email',
+  'Click_the_recovery_link_to_change_your_password_on_our_secure_website' => 'Click the recovery link to change your password on our secure website',
+  'Rider' => 'Rider',
 );
