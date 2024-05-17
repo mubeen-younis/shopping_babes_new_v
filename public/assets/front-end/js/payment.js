@@ -5,7 +5,7 @@ setTimeout(function () {
     $('.razorpay-payment-button').hide();
 }, 10)
 $(function() {
-    $('.proceed_to_next_button').addClass('disabled');
+    $('.proceed_to_next_button').addClass('');
 });
 const radioButtons = document.querySelectorAll('input[type="radio"]');
 radioButtons.forEach(radioButton => {

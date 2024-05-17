@@ -52,7 +52,7 @@ class PaymentController extends Controller
         }
 
         $cart_group_ids = CartManager::get_cart_group_ids();
-        dd(auth()->user());
+        // dd(auth()->user());
         $carts = Cart::whereIn('cart_group_id', $cart_group_ids)->get();
         $productStockCheck = CartManager::product_stock_check($carts);
         if(!$productStockCheck && in_array($request->payment_request_from, ['app'])){
