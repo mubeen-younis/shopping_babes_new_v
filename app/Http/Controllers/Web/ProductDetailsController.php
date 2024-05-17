@@ -50,6 +50,7 @@ class ProductDetailsController extends Controller
      */
     public function index(string $slug): View|RedirectResponse
     {
+        // dd($slug);
         $theme_name = theme_root_path();
 
         return match ($theme_name) {

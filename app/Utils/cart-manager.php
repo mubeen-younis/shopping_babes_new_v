@@ -39,21 +39,30 @@ class CartManager
     public static function get_cart($group_id = null)
     {
         $user = Helpers::get_customer();
+
         if ($user == 'offline') {
             if ($group_id == null) {
-                return Cart::whereIn('cart_group_id', CartManager::get_cart_group_ids())->get();
+                $cart_group_ids = CartManager::get_cart_group_ids();
+                // Ensure $cart_group_ids is an array
+                $cart_group_ids = is_array($cart_group_ids) ? $cart_group_ids : [];
+                $cart = Cart::whereIn('cart_group_id', $cart_group_ids)->get();
+                // dd($cart); // Uncomment for debugging
+                return $cart;
+            } else {
+                return Cart::where('cart_group_id', $group_id)->get();
+            }
+        } else {
+            if ($group_id == null) {
+                $cart_group_ids = CartManager::get_cart_group_ids();
+                // Ensure $cart_group_ids is an array
+                $cart_group_ids = is_array($cart_group_ids) ? $cart_group_ids : [];
+                $cart = Cart::whereIn('cart_group_id', $cart_group_ids)->get();
+                // dd($cart); // Uncomment for debugging
+                return $cart;
             } else {
                 return Cart::where('cart_group_id', $group_id)->get();
             }
         }
-
-        if ($group_id == null) {
-            $cart = Cart::whereIn('cart_group_id', CartManager::get_cart_group_ids())->get();
-        } else {
-            $cart = Cart::where('cart_group_id', $group_id)->get();
-        }
-
-        return $cart;
     }
 
     public static function get_cart_for_api($request, $group_id=null)
@@ -70,13 +79,36 @@ class CartManager
     public static function get_cart_group_ids($request = null)
     {
         $user = Helpers::get_customer($request);
-        // if ($user == 'offline') {
-        //     $cart_ids = Cart::where(['customer_id' => session('guest_id') ?? ($request->guest_id ?? 0), 'is_guest'=>1])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
-        // } else {
-            $cart_ids = Cart::where(['customer_id' => 2, 'is_guest'=>'0'])->groupBy('cart_group_id')->pluck('cart_group_id')->toArray();
-        // }
-        return $cart_ids;
+
+        if ($user == 'offline') {
+            // Ensure session is started and guest_id is managed
+            // session_start();
+            $guest_id = session('guest_id') ?? ($request->guest_id ?? 0);
+
+            if (!$guest_id) {
+                $guest_id = uniqid('guest_', true);
+                session(['guest_id' => $guest_id]);
+            }
+
+            // Fetch cart group IDs for guest users
+            $cart_ids = Cart::where(['customer_id' => $guest_id, 'is_guest' => 1])
+                            ->groupBy('cart_group_id')
+                            ->pluck('cart_group_id')
+                            ->toArray();
+        } else {
+            // Fetch cart group IDs for logged-in users
+            $cart_ids = Cart::where(['customer_id' => $user->id, 'is_guest' => 0])
+                            ->groupBy('cart_group_id')
+                            ->pluck('cart_group_id')
+                            ->toArray();
+        }
+
+        // Ensure an array is always returned
+        return $cart_ids ?? [];
     }
+
+
+
 
     public static function get_shipping_cost($group_id = null)
     {
