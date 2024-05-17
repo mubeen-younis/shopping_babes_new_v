@@ -360,11 +360,12 @@ class SystemController extends Controller
                 return response()->json([
                     'errors' => translate('Delivery_unavailable_in_this_country.')
                 ], 403);
-            } elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($shipping['zip'])) {
-                return response()->json([
-                    'errors' => translate('Delivery_unavailable_in_this_zip_code_area')
-                ], 403);
             }
+            // elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($shipping['zip'])) {
+            //     return response()->json([
+            //         'errors' => translate('Delivery_unavailable_in_this_zip_code_area')
+            //     ], 403);
+            // }
         }
 
         if (isset($shipping['save_address']) && $shipping['save_address'] == 'on') {
@@ -432,11 +433,12 @@ class SystemController extends Controller
                     'errors' => translate('Delivery_unavailable_in_this_country')
                 ], 403);
 
-            } elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($billing['billing_zip'])) {
-                return response()->json([
-                    'errors' => translate('Delivery_unavailable_in_this_zip_code_area')
-                ], 403);
             }
+            // elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($billing['billing_zip'])) {
+            //     return response()->json([
+            //         'errors' => translate('Delivery_unavailable_in_this_zip_code_area')
+            //     ], 403);
+            // }
 
             if (isset($billing['save_address_billing']) && $billing['save_address_billing'] == 'on') {
 

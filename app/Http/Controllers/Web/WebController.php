@@ -384,6 +384,10 @@ class WebController extends Controller
         ]);
     }
 
+
+
+
+
     public function checkout_payment(Request $request)
     {
         $response = self::checkValidationForCheckoutPages($request);
