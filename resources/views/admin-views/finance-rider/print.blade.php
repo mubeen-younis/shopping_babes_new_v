@@ -104,7 +104,7 @@ endif;
                 <tr>
                     <td>
                         <img class="img-logo" alt="Shopping Babes Logo"
-                            src="{{asset('storage/logo.jpg')}}"
+                            src="{{asset('storage/app/public/logo.jpg')}}"
                             style="width: 200px;">
                     </td>
                     <td>
