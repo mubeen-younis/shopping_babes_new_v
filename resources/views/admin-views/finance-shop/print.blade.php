@@ -113,8 +113,8 @@ $netPayAmount = $subTotal-$shopDiscount;
             <tbody>
                 <tr>
                     <td>
-                        <img class="img-logo" alt="Shopping Babes Logo"
-                            src="{{asset('storage/app/public/company/2023-12-19-65817dd08e552.webp')}}"
+                        <img class="img-logo" alt="Shopppping Babes Logo"
+                            src="{{asset('storage/logo.jpg')}}"
                             style="width: 200px;">
                     </td>
                     <td>

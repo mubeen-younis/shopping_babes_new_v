@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Enums\ViewPaths\Web\Pages;
 use App\Enums\ViewPaths\Web\Review;
 use App\Enums\ViewPaths\Web\UserLoyalty;
+use App\Http\Controllers\Admin\ShopFinanceController;
 use App\Http\Controllers\Web\CurrencyController;
 use App\Http\Controllers\Web\PageController;
 use App\Http\Controllers\Web\ReviewController;
@@ -419,3 +420,5 @@ Route::get('payment-fail', 'Customer\PaymentController@fail')->name('payment-fai
 Route::get('/test', function (){
     return view('welcome');
 });
+
+Route::get('finance/generate-report', [ShopFinanceController::class, 'generateWeeklyReport']);

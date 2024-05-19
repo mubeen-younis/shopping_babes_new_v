@@ -104,7 +104,8 @@ class ShopFinanceController extends Controller
         // $orders   = Order::whereBetween('created_at', [$fromDate,$toDate])->get();
         // $orders   = Order::where('payment_status','paid')->get();
         $orders   = Order::where('payment_status', 'paid')
-            ->whereBetween('created_at', [$fromDate, $toDate])
+            // ->whereBetween('created_at', [$fromDate, $toDate])
+            ->take(10)
             ->get();
 
         $shopOrders = [];
@@ -160,7 +161,7 @@ class ShopFinanceController extends Controller
                 echo "Shop Email Sent : $weeklyShopReport->id - " . $weeklyShopReport['seller']['email'] . " <br>";
                 print_r(json_decode($weeklyShopReport['data']));
                 echo "</pre>";
-                // Mail::to($weeklyShopReport['seller']['email'])->send(new \App\Mail\FinanceShop($weeklyShopReport));
+                Mail::to($weeklyShopReport['seller']['email'])->send(new \App\Mail\FinanceShop($weeklyShopReport));
             }
         }
 
@@ -183,7 +184,7 @@ class ShopFinanceController extends Controller
                 echo "Rider Email Sent : $weeklyRiderReport->id - " . $weeklyRiderReport['rider']['email'] . " <br>";
                 print_r(json_decode($weeklyRiderReport['data']));
                 echo "</pre>";
-                // Mail::to($weeklyRiderReport['rider']['email'])->send(new \App\Mail\FinanceRider($weeklyRiderReport));
+                Mail::to($weeklyRiderReport['rider']['email'])->send(new \App\Mail\FinanceRider($weeklyRiderReport));
             }
         }
     }
