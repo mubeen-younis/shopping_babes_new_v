@@ -104,8 +104,7 @@ class ShopFinanceController extends Controller
         // $orders   = Order::whereBetween('created_at', [$fromDate,$toDate])->get();
         // $orders   = Order::where('payment_status','paid')->get();
         $orders   = Order::where('payment_status', 'paid')
-            // ->whereBetween('created_at', [$fromDate, $toDate])
-            ->take(10)
+            ->whereBetween('created_at', [$fromDate, $toDate])
             ->get();
 
         $shopOrders = [];
