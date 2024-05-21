@@ -155,7 +155,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <input type="email" class="form-control" name="email" id="newEmailLabel"
-                                               value="{{$vendor->email}}" readonly
+                                               value="{{$vendor->email}}"
                                                placeholder="{{ translate('ex') }}: {{ 'admin@admin.com' }}">
                                     </div>
                                 </div>

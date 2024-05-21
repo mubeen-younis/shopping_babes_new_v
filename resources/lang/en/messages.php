@@ -7613,4 +7613,11 @@
   'the_email_field_is_required!' => 'The email field is required!',
   'the_encryption_field_is_required!' => 'The encryption field is required!',
   'the_password_field_is_required!' => 'The password field is required!',
+  'The_phone_has_already_been_taken' => 'The phone has already been taken',
+  'The_shop_name_field_is_required' => 'The shop name field is required',
+  'The_shop_address_field_is_required' => 'The shop address field is required',
+  'The_logo_type_must_be' => 'The logo type must be',
+  'The_banner_type_must_be' => 'The banner type must be',
+  'Registration_Complete' => 'Registration Complete',
+  'vendor_added_successfully' => 'Vendor added successfully',
 );
