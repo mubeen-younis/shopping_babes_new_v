@@ -725,6 +725,15 @@ class OrderManager
                     'orderId'=>$order_id,
                 ];
                 event(new OrderPlacedEvent(emailInfo: $sellerEmailInfo));
+
+                $admin = Admin::first();
+
+                $adminEmailInfo = (object)[
+                    'email' => $admin->email,
+                    'orderId' => $order_id,
+                ];
+                event(new OrderPlacedEvent(emailInfo: $adminEmailInfo));
+
             }
         } catch (\Exception $exception) {
 

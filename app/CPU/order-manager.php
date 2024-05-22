@@ -19,6 +19,7 @@ use App\Model\ShippingType;
 use App\Model\ShippingAddress;
 use App\Model\Shop;
 use App\Model\Transaction;
+use App\Models\Admin as ModelsAdmin;
 use App\Traits\CommonTrait;
 use App\User;
 use Carbon\Carbon;
@@ -689,8 +690,16 @@ class OrderManager
                         $email = $user->email;
                     }
                 }
+
+                $adminEmail = Admin::first()->email;
+
+
+
+
                 Mail::to($email)->send(new \App\Mail\OrderPlaced($order_id));
                 Mail::to($seller->email)->send(new \App\Mail\OrderReceivedNotifySeller($order_id));
+                Mail::to($adminEmail)->send(new \App\Mail\NewOrderNotifyAdmin($order_id));
+
             }
         } catch (\Exception $exception) {
 
