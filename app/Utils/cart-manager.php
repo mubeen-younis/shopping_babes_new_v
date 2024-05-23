@@ -295,6 +295,12 @@ class CartManager
         $product = Product::find($request->id);
         $guest_id = session('guest_id') ?? ($request->guest_id ?? 0);
 
+
+
+
+
+
+
         //check the color enabled or disabled for the product
         if ($request->has('color')) {
             $str = Color::where('code', $request['color'])->first()->name;
@@ -429,6 +435,38 @@ class CartManager
                 $shipping_type = isset($seller_shipping)==true? $seller_shipping->shipping_type:'order_wise';
             }
         }
+
+
+
+
+        if ($user == 'offline') {
+            $cart_check = Cart::where([
+                'customer_id' => $guest_id,
+                'is_guest' => 1,
+                'seller_id' => ($product->added_by == 'admin') ? 1 : $product->user_id,
+                'seller_is' => $product->added_by
+            ])->first();
+        } else {
+            $cart_check = Cart::where([
+                'customer_id' => $user->id,
+                'is_guest' => '0',
+                'seller_id' => ($product->added_by == 'admin') ? 1 : $product->user_id,
+                'seller_is' => $product->added_by
+            ])->first();
+        }
+
+        if (isset($cart_check)) {
+            $cart['cart_group_id'] = $cart_check['cart_group_id'];
+            // Reset shipping method for the cart group
+            \App\Models\CartShipping::where('cart_group_id', $cart['cart_group_id'])->delete();
+        } else {
+            $cart['cart_group_id'] = ($user == 'offline' ? 'guest' : $user->id) . '-' . Str::random(5) . '-' . time();
+        }
+
+
+
+
+
         $cart['shipping_type']=$shipping_type;
         $cart->save();
 

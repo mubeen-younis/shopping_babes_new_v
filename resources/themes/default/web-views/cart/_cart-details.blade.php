@@ -806,6 +806,34 @@
     <span id="route-action-checkout-function" data-route="shop-cart"></span>
 </div>
 
+
+<script>
+    $(document).on('change', '.action-set-shipping-id', function() {
+        let shippingMethodId = $(this).val();
+        let cartGroupId = $(this).data('cart-group-id');
+
+        // Make an AJAX request to update the shipping method for the cart group
+        $.ajax({
+            url: '/cart/update-shipping-method',
+            type: 'POST',
+            data: {
+                shipping_method_id: shippingMethodId,
+                cart_group_id: cartGroupId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Handle success, e.g., show a success message or update the cart UI
+                } else {
+                    // Handle error
+                }
+            }
+        });
+    });
+</script>
+
+
+
 @push('script')
     <script src="{{ theme_asset(path: 'public/assets/front-end/js/cart-details.js') }}"></script>
 @endpush

@@ -318,17 +318,84 @@ class WebController extends Controller
         ]);
     }
 
+    // public function checkout_details(Request $request)
+    // {
+    //     if (
+    //         (!auth('customer')->check() || Cart::where(['customer_id' => auth('customer')->id()])->count() < 1)
+    //         && (!getWebConfig(name: 'guest_checkout') || !session()->has('guest_id') || !session('guest_id'))
+    //     ) {
+    //         Toastr::error(translate('invalid_access'));
+    //         return redirect('/');
+    //     }
+
+
+
+    //     $cart_group_ids = CartManager::get_cart_group_ids();
+    //     $shippingMethod = Helpers::get_business_settings('shipping_method');
+    //     $shippingMethodId = 0;
+    //     if (isset($cart_group_ids) && $cart_group_ids) {
+    //         $shippingMethodIdArr = CartShipping::whereIn('cart_group_id', $cart_group_ids)->pluck('shipping_method_id')->toArray();
+    //         $shippingMethodId = isset($shippingMethodIdArr) && $shippingMethodIdArr ? $shippingMethodIdArr[0] : 0;
+    //     }
+
+
+
+    //     $response = self::checkValidationForCheckoutPages($request);
+    //     if ($response['status'] == 0) {
+    //         foreach ($response['message'] as $message) {
+    //             Toastr::error($message);
+    //         }
+    //         return isset($response['redirect']) ? redirect($response['redirect']) : redirect('/');
+    //     }
+
+    //     $countryRestrictStatus = getWebConfig(name: 'delivery_country_restriction');
+    //     $zipRestrictStatus = getWebConfig(name: 'delivery_zip_code_area_restriction');
+    //     $countries = $countryRestrictStatus ? $this->get_delivery_country_array() : COUNTRIES;
+    //     $zipCodes = $zipRestrictStatus ? DeliveryZipCode::all() : 0;
+    //     $billingInputByCustomer = getWebConfig(name: 'billing_input_by_customer');
+    //     $defaultLocation = getWebConfig(name: 'default_location');
+
+    //     $user = Helpers::get_customer($request);
+    //     $shippingAddresses = ShippingAddress::where([
+    //             'customer_id' => $user == 'offline' ? session('guest_id') : auth('customer')->id(),
+    //             'is_guest' => $user == 'offline' ? 1 : '0',
+    //         ])->get();
+
+    //     $countriesName = [];
+    //     $countriesCode = [];
+    //     foreach ($countries as $country) {
+    //         $countriesName[] = $country['name'];
+    //         $countriesCode[] = $country['code'];
+    //     }
+
+    //     return view(VIEW_FILE_NAMES['order_shipping'], [
+    //         'physical_product_view' => $response['physical_product_view'],
+    //         'zip_codes' => $zipCodes,
+    //         'country_restrict_status' => $countryRestrictStatus,
+    //         'zip_restrict_status' => $zipRestrictStatus,
+    //         'countries' => $countries,
+    //         'countriesName' => $countriesName,
+    //         'countriesCode' => $countriesCode,
+    //         'billing_input_by_customer' => $billingInputByCustomer,
+    //         'default_location' => $defaultLocation,
+    //         'shipping_addresses' => $shippingAddresses,
+    //         'billing_addresses' => $shippingAddresses,
+    //         'shippingMethodId' => $shippingMethodId
+    //     ]);
+    // }
+
+
     public function checkout_details(Request $request)
     {
+
         if (
             (!auth('customer')->check() || Cart::where(['customer_id' => auth('customer')->id()])->count() < 1)
-            && (!getWebConfig(name: 'guest_checkout') || !session()->has('guest_id') || !session('guest_id'))
+            && (!Helpers::get_business_settings('guest_checkout') || !session()->has('guest_id') || !session('guest_id'))
         ) {
             Toastr::error(translate('invalid_access'));
+
             return redirect('/');
         }
-
-
 
         $cart_group_ids = CartManager::get_cart_group_ids();
         $shippingMethod = Helpers::get_business_settings('shipping_method');
@@ -337,51 +404,120 @@ class WebController extends Controller
             $shippingMethodIdArr = CartShipping::whereIn('cart_group_id', $cart_group_ids)->pluck('shipping_method_id')->toArray();
             $shippingMethodId = isset($shippingMethodIdArr) && $shippingMethodIdArr ? $shippingMethodIdArr[0] : 0;
         }
+        $verify_status = OrderManager::minimum_order_amount_verify($request);
 
+        if ($verify_status['status'] == 0) {
+            Toastr::info(translate('check_Minimum_Order_Amount_Requirement'));
 
-
-        $response = self::checkValidationForCheckoutPages($request);
-        if ($response['status'] == 0) {
-            foreach ($response['message'] as $message) {
-                Toastr::error($message);
-            }
-            return isset($response['redirect']) ? redirect($response['redirect']) : redirect('/');
+            return redirect()->route('shop-cart');
         }
 
-        $countryRestrictStatus = getWebConfig(name: 'delivery_country_restriction');
-        $zipRestrictStatus = getWebConfig(name: 'delivery_zip_code_area_restriction');
-        $countries = $countryRestrictStatus ? $this->get_delivery_country_array() : COUNTRIES;
-        $zipCodes = $zipRestrictStatus ? DeliveryZipCode::all() : 0;
-        $billingInputByCustomer = getWebConfig(name: 'billing_input_by_customer');
-        $defaultLocation = getWebConfig(name: 'default_location');
+        $cartItems = Cart::where(['customer_id' => auth('customer')->id()])->withCount(['allProducts' => function ($query) {
+            return $query->where('status', 0);
+        }])->get();
+        foreach ($cartItems as $cart) {
+            if (isset($cart->all_product_count) && $cart->all_product_count != 0) {
+                Toastr::info(translate('check_Cart_List_First'));
+
+                return redirect()->route('shop-cart');
+            }
+        }
+
+        $physical_product_view = false;
+        foreach ($cart_group_ids as $group_id) {
+            $carts = Cart::where('cart_group_id', $group_id)->get();
+            foreach ($carts as $cart) {
+                if ($cart->product_type == 'physical') {
+                    $physical_product_view = true;
+                }
+            }
+        }
+
+        foreach ($cart_group_ids as $group_id) {
+            $carts = Cart::where('cart_group_id', $group_id)->get();
+
+            $physical_product = false;
+            foreach ($carts as $cart) {
+                if ($cart->product_type == 'physical') {
+                    $physical_product = true;
+                }
+            }
+            if ($physical_product) {
+                foreach ($carts as $cart) {
+                    if ($shippingMethod == 'inhouse_shipping') {
+                        $admin_shipping = ShippingType::where('seller_id', 0)->first();
+                        $shipping_type = isset($admin_shipping) == true ? $admin_shipping->shipping_type : 'order_wise';
+                    } else {
+                        if ($cart->seller_is == 'admin') {
+                            $admin_shipping = ShippingType::where('seller_id', 0)->first();
+                            $shipping_type = isset($admin_shipping) == true ? $admin_shipping->shipping_type : 'order_wise';
+                        } else {
+                            $seller_shipping = ShippingType::where('seller_id', $cart->seller_id)->first();
+                            $shipping_type = isset($seller_shipping) == true ? $seller_shipping->shipping_type : 'order_wise';
+                        }
+                    }
+
+                    if ($physical_product && $shipping_type == 'order_wise') {
+                        $cart_shipping = CartShipping::where('cart_group_id', $cart->cart_group_id)->first();
+                        if (!isset($cart_shipping)) {
+                            Toastr::info(translate('select_shipping_method_first'));
+
+                            return redirect('shop-cart');
+                        }
+                    }
+                }
+            }
+        }
+
+        $country_restrict_status = Helpers::get_business_settings('delivery_country_restriction');
+        $zip_restrict_status = Helpers::get_business_settings('delivery_zip_code_area_restriction');
+
+        if ($country_restrict_status) {
+            $countries = $this->get_delivery_country_array();
+        } else {
+            $countries = COUNTRIES;
+        }
+
+        if ($zip_restrict_status) {
+            $zip_codes = DeliveryZipCode::all();
+        } else {
+            $zip_codes = 0;
+        }
+
+        $billing_input_by_customer = Helpers::get_business_settings('billing_input_by_customer');
+        $default_location = Helpers::get_business_settings('default_location');
 
         $user = Helpers::get_customer($request);
-        $shippingAddresses = ShippingAddress::where([
-                'customer_id' => $user == 'offline' ? session('guest_id') : auth('customer')->id(),
-                'is_guest' => $user == 'offline' ? 1 : '0',
-            ])->get();
+        $shipping_addresses = ShippingAddress::where([
+            'customer_id' => $user == 'offline' ? session('guest_id') : auth('customer')->id(),
+            'is_guest' => $user == 'offline' ? 1 : '0',
+            'is_billing' => 0,
+        ])->get();
 
-        $countriesName = [];
-        $countriesCode = [];
-        foreach ($countries as $country) {
-            $countriesName[] = $country['name'];
-            $countriesCode[] = $country['code'];
+        $billing_addresses = ShippingAddress::where([
+            'customer_id' => $user == 'offline' ? session('guest_id') : auth('customer')->id(),
+            'is_guest' => $user == 'offline' ? 1 : '0',
+            'is_billing' => 1,
+        ])->get();
+
+        if (count($cart_group_ids) > 0) {
+            return view(VIEW_FILE_NAMES['order_shipping'], compact(
+                'physical_product_view',
+                'zip_codes',
+                'country_restrict_status',
+                'zip_restrict_status',
+                'countries',
+                'billing_input_by_customer',
+                'default_location',
+                'shipping_addresses',
+                'billing_addresses',
+                'shippingMethodId'
+            ));
         }
 
-        return view(VIEW_FILE_NAMES['order_shipping'], [
-            'physical_product_view' => $response['physical_product_view'],
-            'zip_codes' => $zipCodes,
-            'country_restrict_status' => $countryRestrictStatus,
-            'zip_restrict_status' => $zipRestrictStatus,
-            'countries' => $countries,
-            'countriesName' => $countriesName,
-            'countriesCode' => $countriesCode,
-            'billing_input_by_customer' => $billingInputByCustomer,
-            'default_location' => $defaultLocation,
-            'shipping_addresses' => $shippingAddresses,
-            'billing_addresses' => $shippingAddresses,
-            'shippingMethodId' => $shippingMethodId
-        ]);
+        Toastr::info(translate('no_items_in_basket'));
+
+        return redirect('/');
     }
 
 
@@ -389,65 +525,191 @@ class WebController extends Controller
 
 
 
+    // public function checkout_payment(Request $request)
+    // {
+    //     $response = self::checkValidationForCheckoutPages($request);
+    //     if ($response['status'] == 0) {
+    //         foreach ($response['message'] as $message) {
+    //             Toastr::error($message);
+    //         }
+    //         return $response['redirect'] ? redirect($response['redirect']) : redirect('/');
+    //     }
+
+    //     $cartItemGroupIDs = CartManager::get_cart_group_ids();
+    //     $cartGroupList = Cart::whereIn('cart_group_id', $cartItemGroupIDs)->get()->groupBy('cart_group_id');
+    //     $isPhysicalProductExistArray = [];
+    //     foreach ($cartGroupList as $groupId => $cartGroup) {
+    //         $isPhysicalProductExist = false;
+    //         foreach ($cartGroup as $cart) {
+    //             if ($cart->product_type == 'physical') {
+    //                 $isPhysicalProductExist = true;
+    //             }
+    //         }
+    //         $isPhysicalProductExistArray[$groupId] = $isPhysicalProductExist;
+    //     }
+    //     $cashOnDeliveryBtnShow = !in_array(false, $isPhysicalProductExistArray);
+
+    //     $order = Order::find(session('order_id'));
+    //     $couponDiscount = session()->has('coupon_discount') ? session('coupon_discount') : 0;
+    //     $orderWiseShippingDiscount = CartManager::order_wise_shipping_discount();
+    //     $getShippingCostSavedForFreeDelivery = CartManager::get_shipping_cost_saved_for_free_delivery();
+    //     $amount = CartManager::cart_grand_total() - $couponDiscount - $orderWiseShippingDiscount - $getShippingCostSavedForFreeDelivery;
+    //     $inr = Currency::where(['symbol' => '₹'])->first();
+    //     $usd = Currency::where(['code' => 'USD'])->first();
+    //     $myr = Currency::where(['code' => 'MYR'])->first();
+
+    //     $offlinePaymentMethods = OfflinePaymentMethod::where('status', 1)->get();
+    //     $paymentPublishedStatus = config('get_payment_publish_status');
+    //     $paymentGatewayPublishedStatus = isset($paymentPublishedStatus[0]['is_published']) ? $paymentPublishedStatus[0]['is_published'] : 0;
+
+    //     if (session()->has('address_id') && session()->has('billing_address_id')) {
+    //         return view(VIEW_FILE_NAMES['payment_details'], [
+    //             'cashOnDeliveryBtnShow' => $cashOnDeliveryBtnShow,
+    //             'order' => $order,
+    //             'cash_on_delivery' => getWebConfig(name: 'cash_on_delivery'),
+    //             'digital_payment' => getWebConfig(name: 'digital_payment'),
+    //             'wallet_status' => getWebConfig(name: 'wallet_status'),
+    //             'offline_payment' => getWebConfig(name: 'offline_payment'),
+    //             'coupon_discount' => $couponDiscount,
+    //             'amount' => $amount,
+    //             'inr' => $inr,
+    //             'usd' => $usd,
+    //             'myr' => $myr,
+    //             'payment_gateway_published_status' => $paymentGatewayPublishedStatus,
+    //             'payment_gateways_list' => payment_gateways(),
+    //             'offline_payment_methods' => $offlinePaymentMethods
+    //         ]);
+    //     }
+
+    //     Toastr::error(translate('incomplete_info'));
+    //     return back();
+    // }
+
     public function checkout_payment(Request $request)
     {
-        $response = self::checkValidationForCheckoutPages($request);
-        if ($response['status'] == 0) {
-            foreach ($response['message'] as $message) {
-                Toastr::error($message);
-            }
-            return $response['redirect'] ? redirect($response['redirect']) : redirect('/');
+        $cart_group_ids = CartManager::get_cart_group_ids();
+        $shippingMethod = Helpers::get_business_settings('shipping_method');
+
+        $verify_status = OrderManager::minimum_order_amount_verify($request);
+
+        if ($verify_status['status'] == 0) {
+            Toastr::info(translate('check_Minimum_Order_Amount_Requirment'));
+
+            return redirect()->route('shop-cart');
         }
 
-        $cartItemGroupIDs = CartManager::get_cart_group_ids();
-        $cartGroupList = Cart::whereIn('cart_group_id', $cartItemGroupIDs)->get()->groupBy('cart_group_id');
-        $isPhysicalProductExistArray = [];
-        foreach ($cartGroupList as $groupId => $cartGroup) {
-            $isPhysicalProductExist = false;
-            foreach ($cartGroup as $cart) {
+        $cartItems = Cart::where(['customer_id' => auth('customer')->id()])->withCount(['allProducts' => function ($query) {
+            return $query->where('status', 0);
+        }])->get();
+        foreach ($cartItems as $cart) {
+            if (isset($cart->all_product_count) && $cart->all_product_count != 0) {
+                Toastr::info(translate('check_Cart_List_First'));
+
+                return redirect()->route('shop-cart');
+            }
+        }
+
+        $physical_products[] = false;
+        foreach ($cart_group_ids as $group_id) {
+            $carts = Cart::where('cart_group_id', $group_id)->get();
+            $physical_product = false;
+            foreach ($carts as $cart) {
                 if ($cart->product_type == 'physical') {
-                    $isPhysicalProductExist = true;
+                    $physical_product = true;
                 }
             }
-            $isPhysicalProductExistArray[$groupId] = $isPhysicalProductExist;
+            $physical_products[] = $physical_product;
         }
-        $cashOnDeliveryBtnShow = !in_array(false, $isPhysicalProductExistArray);
+        unset($physical_products[0]);
+
+        $cod_not_show = in_array(false, $physical_products);
+
+        foreach ($cart_group_ids as $group_id) {
+            $carts = Cart::where('cart_group_id', $group_id)->get();
+
+            $physical_product = false;
+            foreach ($carts as $cart) {
+                if ($cart->product_type == 'physical') {
+                    $physical_product = true;
+                }
+            }
+
+            if ($physical_product) {
+                foreach ($carts as $cart) {
+                    if ($shippingMethod == 'inhouse_shipping') {
+                        $admin_shipping = ShippingType::where('seller_id', 0)->first();
+                        $shipping_type = isset($admin_shipping) == true ? $admin_shipping->shipping_type : 'order_wise';
+                    } else {
+                        if ($cart->seller_is == 'admin') {
+                            $admin_shipping = ShippingType::where('seller_id', 0)->first();
+                            $shipping_type = isset($admin_shipping) == true ? $admin_shipping->shipping_type : 'order_wise';
+                        } else {
+                            $seller_shipping = ShippingType::where('seller_id', $cart->seller_id)->first();
+                            $shipping_type = isset($seller_shipping) == true ? $seller_shipping->shipping_type : 'order_wise';
+                        }
+                    }
+                    if ($shipping_type == 'order_wise') {
+                        $cart_shipping = CartShipping::where('cart_group_id', $cart->cart_group_id)->first();
+                        if (!isset($cart_shipping)) {
+                            Toastr::info(translate('select_shipping_method_first'));
+
+                            return redirect('shop-cart');
+                        }
+                    }
+                }
+            }
+        }
 
         $order = Order::find(session('order_id'));
-        $couponDiscount = session()->has('coupon_discount') ? session('coupon_discount') : 0;
-        $orderWiseShippingDiscount = CartManager::order_wise_shipping_discount();
-        $getShippingCostSavedForFreeDelivery = CartManager::get_shipping_cost_saved_for_free_delivery();
-        $amount = CartManager::cart_grand_total() - $couponDiscount - $orderWiseShippingDiscount - $getShippingCostSavedForFreeDelivery;
+        $coupon_discount = session()->has('coupon_discount') ? session('coupon_discount') : 0;
+        $order_wise_shipping_discount = CartManager::order_wise_shipping_discount();
+        $get_shipping_cost_saved_for_free_delivery = CartManager::get_shipping_cost_saved_for_free_delivery();
+        $amount = CartManager::cart_grand_total() - $coupon_discount - $order_wise_shipping_discount - $get_shipping_cost_saved_for_free_delivery;
         $inr = Currency::where(['symbol' => '₹'])->first();
         $usd = Currency::where(['code' => 'USD'])->first();
         $myr = Currency::where(['code' => 'MYR'])->first();
 
-        $offlinePaymentMethods = OfflinePaymentMethod::where('status', 1)->get();
-        $paymentPublishedStatus = config('get_payment_publish_status');
-        $paymentGatewayPublishedStatus = isset($paymentPublishedStatus[0]['is_published']) ? $paymentPublishedStatus[0]['is_published'] : 0;
+        $cash_on_delivery = Helpers::get_business_settings('cash_on_delivery');
+        $digital_payment = Helpers::get_business_settings('digital_payment');
+        $wallet_status = Helpers::get_business_settings('wallet_status');
+        $offline_payment = Helpers::get_business_settings('offline_payment');
 
-        if (session()->has('address_id') && session()->has('billing_address_id')) {
-            return view(VIEW_FILE_NAMES['payment_details'], [
-                'cashOnDeliveryBtnShow' => $cashOnDeliveryBtnShow,
-                'order' => $order,
-                'cash_on_delivery' => getWebConfig(name: 'cash_on_delivery'),
-                'digital_payment' => getWebConfig(name: 'digital_payment'),
-                'wallet_status' => getWebConfig(name: 'wallet_status'),
-                'offline_payment' => getWebConfig(name: 'offline_payment'),
-                'coupon_discount' => $couponDiscount,
-                'amount' => $amount,
-                'inr' => $inr,
-                'usd' => $usd,
-                'myr' => $myr,
-                'payment_gateway_published_status' => $paymentGatewayPublishedStatus,
-                'payment_gateways_list' => payment_gateways(),
-                'offline_payment_methods' => $offlinePaymentMethods
-            ]);
+        $payment_gateways_list = payment_gateways();
+
+        $offline_payment_methods = OfflinePaymentMethod::where('status', 1)->get();
+        $payment_published_status = config('get_payment_publish_status');
+        $payment_gateway_published_status = isset($payment_published_status[0]['is_published']) ? $payment_published_status[0]['is_published'] : 0;
+
+        if (session()->has('address_id') && session()->has('billing_address_id') && count($cart_group_ids) > 0) {
+            return view(
+                VIEW_FILE_NAMES['payment_details'],
+                compact(
+                    'cod_not_show',
+                    'order',
+                    'cash_on_delivery',
+                    'digital_payment',
+                    'offline_payment',
+                    'wallet_status',
+                    'coupon_discount',
+                    'amount',
+                    'inr',
+                    'usd',
+                    'myr',
+                    'payment_gateway_published_status',
+                    'payment_gateways_list',
+                    'offline_payment_methods'
+                )
+            );
         }
 
         Toastr::error(translate('incomplete_info'));
+
         return back();
     }
+
+
+
+
 
     public function checkout_complete(Request $request)
     {
