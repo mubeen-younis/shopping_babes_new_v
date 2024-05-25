@@ -230,6 +230,60 @@ class CustomerController extends Controller
         return response()->json($data, 200);
     }
 
+    // public function add_new_address(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'contact_person_name' => 'required',
+    //         'address_type' => 'required',
+    //         'address' => 'required',
+    //         'city' => 'required',
+    //         'zip' => 'required',
+    //         'country' => 'required',
+    //         'phone' => 'required',
+    //         'latitude' => 'required',
+    //         'longitude' => 'required',
+    //         'is_billing' => 'required'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+    //     }
+
+    //     $zip_restrict_status = Helpers::get_business_settings('delivery_zip_code_area_restriction');
+    //     $country_restrict_status = Helpers::get_business_settings('delivery_country_restriction');
+
+    //     if ($country_restrict_status && !self::delivery_country_exist_check($request->input('country'))) {
+    //         return response()->json(['message' => translate('Delivery_unavailable_for_this_country')], 403);
+
+    //     } elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($request->input('zip'))) {
+    //         return response()->json(['message' => translate('Delivery_unavailable_for_this_zip_code_area')], 403);
+    //     }
+
+    //     $user = Helpers::get_customer($request);
+
+    //     $address = [
+    //         'customer_id' => $user == 'offline' ? $request->guest_id : $user->id,
+    //         'is_guest' => $user == 'offline' ? 1 : 0,
+    //         'contact_person_name' => $request->contact_person_name,
+    //         'address_type' => $request->address_type,
+    //         'address' => $request->address,
+    //         'city' => $request->city,
+    //         'zip' => $request->zip,
+    //         'country' => $request->country,
+    //         'phone' => $request->phone,
+    //         'email' => $request->email,
+    //         'latitude' => $request->latitude,
+    //         'longitude' => $request->longitude,
+    //         'is_billing' => $request->is_billing,
+    //         'created_at' => now(),
+    //         'updated_at' => now(),
+    //     ];
+    //     ShippingAddress::insert($address);
+    //     return response()->json(['message' => translate('successfully added!')], 200);
+    // }
+
+
+
     public function add_new_address(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -242,7 +296,7 @@ class CustomerController extends Controller
             'phone' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'is_billing' => 'required'
+            'is_billing' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -254,10 +308,10 @@ class CustomerController extends Controller
 
         if ($country_restrict_status && !self::delivery_country_exist_check($request->input('country'))) {
             return response()->json(['message' => translate('Delivery_unavailable_for_this_country')], 403);
-
-        } elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($request->input('zip'))) {
-            return response()->json(['message' => translate('Delivery_unavailable_for_this_zip_code_area')], 403);
         }
+        // elseif ($zip_restrict_status && ! self::delivery_zipcode_exist_check($request->input('zip'))) {
+        //     return response()->json(['message' => translate('Delivery_unavailable_for_this_zip_code_area')], 403);
+        // }
 
         $user = Helpers::get_customer($request);
 
@@ -279,8 +333,15 @@ class CustomerController extends Controller
             'updated_at' => now(),
         ];
         ShippingAddress::insert($address);
+
         return response()->json(['message' => translate('successfully added!')], 200);
     }
+
+
+
+
+
+
 
     public function update_address(Request $request)
     {
