@@ -4,6 +4,7 @@ namespace App\Http\Controllers\RestAPI\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\CartShipping;
+use App\Models\MethodShipping;
 use App\Models\ShippingMethod;
 use App\Models\ShippingType;
 use App\Utils\CartManager;
@@ -105,4 +106,19 @@ class ShippingMethodController extends Controller
         }
         return response()->json(['shipping_type'=>$shipping_type], 200);
     }
+
+    public function shipping_method(Request $request){
+
+        $shippingMethod = new MethodShipping();
+
+        $shippingMethod->regular_post = $request->regular_post;
+        $shippingMethod->express_post = $request->express_post;
+        $shippingMethod->rider = $request->rider;
+
+        $shippingMethod->save();
+
+        return response()->json(['message' => 'Shipping Method selected Successfully', $shippingMethod]);
+
+    }
+
 }
