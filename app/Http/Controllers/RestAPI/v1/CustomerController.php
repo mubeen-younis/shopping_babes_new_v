@@ -297,6 +297,7 @@ class CustomerController extends Controller
             'latitude' => 'required',
             'longitude' => 'required',
             'is_billing' => 'required',
+            'is_rider_address' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -329,6 +330,7 @@ class CustomerController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'is_billing' => $request->is_billing,
+            'is_rider_address' => $request->is_rider_address,
             'created_at' => now(),
             'updated_at' => now(),
         ];
