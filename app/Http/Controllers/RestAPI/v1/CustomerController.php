@@ -87,7 +87,6 @@ class CustomerController extends Controller
 
             $user->delete();
             return response()->json(['message' => 'Your account deleted successfully'], 200);
-
         } else {
             return response()->json(['message' => 'access_denied!!'], 403);
         }
@@ -199,7 +198,6 @@ class CustomerController extends Controller
         if (!empty($wishlist)) {
             Wishlist::where(['customer_id' => $request->user()->id, 'product_id' => $request->product_id])->delete();
             return response()->json(['message' => translate('successfully removed!')], 200);
-
         }
         return response()->json(['message' => translate('No such data found!')], 404);
     }
@@ -222,11 +220,17 @@ class CustomerController extends Controller
     public function address_list(Request $request)
     {
         $user = Helpers::get_customer($request);
+        $type = request()->input('type');
         if ($user == 'offline') {
-            $data = ShippingAddress::where(['customer_id' => $request->guest_id, 'is_guest' => 1])->latest()->get();
+            $data = ShippingAddress::where(['customer_id' => $request->guest_id, 'is_guest' => 1])->latest();
         } else {
-            $data = ShippingAddress::where(['customer_id' => $user->id, 'is_guest' => '0'])->latest()->get();
+            $data = ShippingAddress::where(['customer_id' => $user->id, 'is_guest' => 0])->latest();
         }
+        $data = $data->when($type == 'rider', function ($query) {
+            $query->where('is_rider_address', 1);
+        })->when($type == 'user', function ($query) {
+            $query->where('is_rider_address', 0);
+        })->get();
         return response()->json($data, 200);
     }
 
@@ -296,8 +300,7 @@ class CustomerController extends Controller
             'phone' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'is_billing' => 'required',
-            'is_rider_address' => 'required',
+            'is_billing' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -330,7 +333,7 @@ class CustomerController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'is_billing' => $request->is_billing,
-            'is_rider_address' => $request->is_rider_address,
+            'is_rider_address' => isset($request->is_rider_address) && $request->is_rider_address ? $request->is_rider_address : 0,
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -358,7 +361,6 @@ class CustomerController extends Controller
 
         if ($country_restrict_status && !self::delivery_country_exist_check($request->input('country'))) {
             return response()->json(['message' => translate('Delivery_unavailable_for_this_country')], 403);
-
         } elseif ($zip_restrict_status && !self::delivery_zipcode_exist_check($request->input('zip'))) {
             return response()->json(['message' => translate('Delivery_unavailable_for_this_zip_code_area')], 403);
         }
@@ -428,7 +430,7 @@ class CustomerController extends Controller
                         $query->where('order_type', 'default_type');
                     });
             })
-            ->orderBy('id','desc')
+            ->orderBy('id', 'desc')
             ->paginate($request['limit'], ['*'], 'page', $request['offset']);
 
         $orders->map(function ($data) {
@@ -570,7 +572,7 @@ class CustomerController extends Controller
 
         foreach ($country_list as $country) {
             if (in_array($country['code'], $stored_countries)) {
-                $countries [] = $country['name'];
+                $countries[] = $country['name'];
             }
         }
 
