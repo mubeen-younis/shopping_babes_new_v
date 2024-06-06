@@ -455,13 +455,7 @@ class CartManager
             ])->first();
         }
 
-        if (isset($cart_check)) {
-            $cart['cart_group_id'] = $cart_check['cart_group_id'];
-            // Reset shipping method for the cart group
-            \App\Models\CartShipping::where('cart_group_id', $cart['cart_group_id'])->delete();
-        } else {
-            $cart['cart_group_id'] = ($user == 'offline' ? 'guest' : $user->id) . '-' . Str::random(5) . '-' . time();
-        }
+
 
 
 

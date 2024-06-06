@@ -110,7 +110,7 @@ class CartManager
             endforeach;
             if( $addtotalQty > 0 ) $cost +=  $addtotalQty * $additionalShipping;
             // Custom functionaliy End
-            
+
         } else {
             $data = CartShipping::whereHas('cart', function ($query){
                 $query->where(['product_type'=>'physical']);
