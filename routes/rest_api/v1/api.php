@@ -175,4 +175,100 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
             Route::get('close/{id}', 'CustomerController@support_ticket_close');
         });
 
+        Route::group(['prefix' => 'compare'], function () {
+            Route::get('list', 'CompareController@list');
+            Route::post('product-store', 'CompareController@compare_product_store');
+            Route::delete('clear-all', 'CompareController@clear_all');
+            Route::get('product-replace', 'CompareController@compare_product_replace');
+        });
 
+        Route::group(['prefix' => 'wish-list'], function () {
+            Route::get('/', 'CustomerController@wish_list');
+            Route::post('add', 'CustomerController@add_to_wishlist');
+            Route::delete('remove', 'CustomerController@remove_from_wishlist');
+        });
+
+        Route::group(['prefix' => 'order'], function () {
+            Route::get('place-by-wallet', 'OrderController@place_order_by_wallet');
+            Route::get('refund', 'OrderController@refund_request');
+            Route::post('refund-store', 'OrderController@store_refund');
+            Route::get('refund-details', 'OrderController@refund_details');
+            Route::get('list', 'CustomerController@get_order_list');
+            Route::post('deliveryman-reviews/submit', 'ProductController@submit_deliveryman_review')->middleware('auth:api');
+            Route::post('again', 'OrderController@order_again');
+        });
+        // Chatting
+        Route::group(['prefix' => 'chat'], function () {
+            Route::get('list/{type}', 'ChatController@list');
+            Route::get('get-messages/{type}/{id}', 'ChatController@get_message');
+            Route::post('send-message/{type}', 'ChatController@send_message');
+            Route::post('seen-message/{type}', 'ChatController@seen_message');
+            Route::get('search/{type}', 'ChatController@search');
+        });
+
+        //wallet
+        Route::group(['prefix' => 'wallet'], function () {
+            Route::get('list', 'UserWalletController@list');
+            Route::get('bonus-list', 'UserWalletController@bonus_list');
+        });
+        //loyalty
+        Route::group(['prefix' => 'loyalty'], function () {
+            Route::get('list', 'UserLoyaltyController@list');
+            Route::post('loyalty-exchange-currency', 'UserLoyaltyController@loyalty_exchange_currency');
+        });
+    });
+
+    Route::group(['prefix' => 'customer', 'middleware' => 'apiGuestCheck'], function () {
+        Route::group(['prefix' => 'order'], function () {
+            Route::get('digital-product-download/{id}', 'OrderController@digital_product_download');
+            Route::get('digital-product-download-otp-verify', 'OrderController@digital_product_download_otp_verify');
+            Route::post('digital-product-download-otp-resend', 'OrderController@digital_product_download_otp_resend');
+        });
+    });
+
+    Route::group(['prefix' => 'digital-payment','middleware'=>'apiGuestCheck'], function () {
+        Route::post('/', [PaymentController::class, 'payment']);
+    });
+
+    Route::group(['prefix' => 'add-to-fund','middleware'=>'auth:api'], function () {
+        Route::post('/', [PaymentController::class, 'customer_add_to_fund_request']);
+    });
+
+    Route::group(['prefix' => 'order'], function () {
+        Route::get('track', 'OrderController@track_by_order_id');
+        Route::get('cancel-order','OrderController@order_cancel');
+        Route::post('track-order','OrderController@track_order');
+    });
+
+    Route::group(['prefix' => 'banners'], function () {
+        Route::get('/', 'BannerController@get_banners');
+    });
+
+    Route::group(['prefix' => 'seller'], function () {
+        Route::get('/', 'SellerController@get_seller_info');
+        Route::get('list/{type}', 'SellerController@getSellerList');
+        Route::get('more', 'SellerController@more_sellers');
+    });
+
+    Route::group(['prefix' => 'coupon','middleware' => 'auth:api'], function () {
+        Route::get('apply', 'CouponController@apply');
+    });
+    Route::get('coupon/list', 'CouponController@list')->middleware('auth:api');
+    Route::get('coupon/applicable-list', 'CouponController@applicable_list')->middleware('auth:api');
+    Route::get('coupons/{seller_id}/seller-wise-coupons', 'CouponController@get_seller_wise_coupon');
+
+    Route::get('get-guest-id', 'GeneralController@get_guest_id');
+
+    //map api
+    Route::group(['prefix' => 'mapapi'], function () {
+        Route::get('place-api-autocomplete', 'MapApiController@place_api_autocomplete');
+        Route::get('distance-api', 'MapApiController@distance_api');
+        Route::get('place-api-details', 'MapApiController@place_api_details');
+        Route::get('geocode-api', 'MapApiController@geocode_api');
+    });
+
+    Route::post('contact-us', 'GeneralController@contact_store');
+    Route::put('customer/language-change', 'CustomerController@language_change')->middleware('auth:api');
+
+    Route::post('method/shipping', 'ShippingMethodController@shipping_method');
+});
