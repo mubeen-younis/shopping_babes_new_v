@@ -108,19 +108,19 @@ class DeliveryManController extends Controller
 
     public function add(DeliveryManAddRequest $request, DeliveryManService $deliveryManService): RedirectResponse
     {
-    //     $deliveryMan = $this->deliveryManRepo->getFirstWhere(params: ['phone' => $request['phone'], 'country_code' => $request['country_code']]);
-    //     if ($deliveryMan) {
-    //         Toastr::error(translate('this_phone_number_is_already_taken'));
+        $deliveryMan = $this->deliveryManRepo->getFirstWhere(params: ['phone' => $request['phone'], 'country_code' => $request['country_code']]);
+        if ($deliveryMan) {
+            Toastr::error(translate('this_phone_number_is_already_taken'));
 
-    //         return back();
-    //     }
+            return back();
+        }
 
-    //     $dataArray = $deliveryManService->getDeliveryManAddData(request: $request, addedBy: 'admin');
-    //     $this->deliveryManRepo->add(data: $dataArray);
+        $dataArray = $deliveryManService->getDeliveryManAddData(request: $request, addedBy: 'admin');
+        $this->deliveryManRepo->add(data: $dataArray);
 
-    //     Toastr::success(translate('Delivery_man_added_successfully'));
+        Toastr::success(translate('Delivery_man_added_successfully'));
 
-    //     return redirect()->route('admin.delivery-man.list');
+        return redirect()->route('admin.delivery-man.list');
      }
 
 
